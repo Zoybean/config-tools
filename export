@@ -1,0 +1,64 @@
+#!/bin/bash
+
+## 'export' settings files from this computer to the repository
+## Usage:
+## ./export list of files
+#    exports files "list", "of" and "files", if they exist in "src"
+
+# source for files
+src=~
+
+# path to repo from ${src}
+repo="config"
+
+# dest directory for files, relative to ${repo}
+dest="src"
+
+# files to be exported
+if [ "$#" -eq "0" ] ;
+then
+    echo "no files to export, aborting"
+    exit 1
+else
+    files="$(
+        IFS=$'\n'; echo "$*" # all the files listed in the command line args
+        )"
+fi
+
+# files which would be overwritten
+overwrites="$(
+    echo "${files}"| # for each file
+        sed 's:^\.*::'| # trim all leading '.'s. files must not be hidden
+        while IFS='' read file;
+        do
+            ls -1a "${dest}" | grep "^${file}$" # file exists in destination directory, as a visible file
+        done
+            )"
+if [ "${overwrites}" != "" ];
+then
+    echo "This action will overwrite the following files:"
+    echo "${overwrites}"|
+        sed "s:^:${src}/${repo}/${dest}/:" # format it nicely with the path
+fi
+
+# confirm that this is fine
+echo -n "Are you sure? (y/N): "
+read confirm
+[ -t 0 ] || echo # if not open in a terminal, add the implicit newline from read
+if echo "${confirm}"|grep -E "[Yy]+([Ee]+[Ss]+)*">/dev/null;
+then # they tried to say yes
+    echo "${files}"| # for each file
+        while IFS='' read file; 
+        do
+            dstFile="$(echo "${file}"|sed 's:^\.*::')" # visible name for the file
+            if [ -e "${src}/${file}" ];
+            then # source file exists
+                cp -fRTL "${src}/${file}" "${src}/${repo}/${dest}/${dstFile}" # copy the file, recursively, following all symlinks, treating destination folders as files, forcing overwrite
+            else # file doesn't exist
+                echo "Warning: cannot export nonexistent file \"${src}/${file}\"" # don't create bad links
+            fi
+        done
+else # they said something else; assume no
+    echo "aborting" # let the user know nothing happened
+    exit 1
+fi
