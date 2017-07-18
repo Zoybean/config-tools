@@ -2,10 +2,10 @@
 
 ## link settings files from the repo to this computer
 ## Usage:
-## ./import
-#    imports all files from "src"
-## ./import list of files
-#    imports files "list", "of" and "files", if they exist in "src"
+## ./link
+#    links all files from "src"
+## ./link list of files
+#    links files "list", "of" and "files", if they exist in "src"
 
 # destination for links
 dest=~

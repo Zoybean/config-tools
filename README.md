@@ -7,5 +7,5 @@ No more carting around USBs full of old and new rc files! Once you've made a cle
 
 Now with scripts to easily update and link files
 -
-Use `import` to link you local files with the repository  
+Use `link` to link you local files with the repository  
 Use `export` to update the repository with unlinked local files
