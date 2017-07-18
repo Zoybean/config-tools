@@ -10,3 +10,8 @@ Now with scripts to easily update and link files
 Use `export` to update the repository with unlinked local files, overwriting existing files  
 Use `link` to link you local files with the repository, overwriting local originals  
 Use `import` to update the local files with files from the repo, overwriting links  
+
+Misc
+-
+Git doesn't track repositories inside other repositories unless you tell it to specifically.
+Use the `git submodule` set of commands. I'm not too familiar with iti myself, but `git submodule add <url>` clones the repository, and tracks it.
