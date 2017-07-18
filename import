@@ -1,0 +1,69 @@
+#!/bin/bash
+
+## import settings files from the repo to this computer, without linking
+## Usage:
+## ./import
+#    imports all files from "src"
+## ./import list of files
+#    imports files "list", "of" and "files", if they exist in "src"
+
+# destination for files
+dest=~
+
+# path to repo from ${dest}
+repo="config"
+
+# source directory for copied files, relative to ${repo}
+source="src"
+
+# files to be copied
+files="$(
+    if [ "$#" -eq "0" ] ;
+    then
+        ls -1 "${source}" # all the files in source directory
+    else
+        IFS=$'\n'; echo "$*" # all the files listed in the command line args
+    fi
+        )"
+
+# don't do anything if there's nothing to do
+if [ "${files}" == "" ];
+then
+    echo "no files to import, exiting"
+else
+    # files which would be overwritten
+    overwrites="$(
+        echo "${files}"| # for each file
+            while IFS='' read file;
+            do
+                ls -1a "${dest}" | grep "^.${file}$" # file exists in destination directory, as a hidden file
+            done
+                )"
+    if [ "${overwrites}" != "" ];
+    then
+        echo "This action will overwrite the following files:"
+        echo "${overwrites}"|
+            sed "s:^:${dest}/:" # format it nicely with the path
+    fi
+
+    # confirm that this is fine
+    echo -n "Are you sure? (y/N): "
+    read confirm
+    [ -t 0 ] || echo # if not open in a terminal, add the implicit newline from read
+    if echo "${confirm}"|grep -E "[Yy]+([Ee]+[Ss]+)*">/dev/null;
+    then # they tried to say yes
+        echo "${files}"| # for each file
+            while IFS='' read file; 
+            do
+                if [ -e "${source}/${file}" ];
+                then # source file exists
+                    cp -fvT "${dest}/${repo}/${source}/${file}" "${dest}/.${file}" # copy, overwriting, verbose
+                else # file doesn't exist
+                    echo "Warning: cannot copy nonexistent file \"${source}/${file}\"" # don't copy nothing
+                fi
+            done
+    else # they said something else; assume no
+        echo "aborting" # let the user know nothing happened
+        exit 1
+    fi
+fi
