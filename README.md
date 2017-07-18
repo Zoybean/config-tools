@@ -13,5 +13,5 @@ Use `import` to update the local files with files from the repo, overwriting lin
 
 Misc
 -
-Git doesn't track repositories inside other repositories unless you tell it to specifically.
-Use the `git submodule` set of commands. I'm not too familiar with iti myself, but `git submodule add <url>` clones the repository, and tracks it.
+Git doesn't track repositories inside other repositories unless you tell it to specifically.  
+Use the `git submodule` set of commands. I'm not too familiar with it myself, but `git submodule add <url>` clones the repository, and tracks it.
