@@ -46,10 +46,13 @@ else
             sed "s:^:${dest}/:" # format it nicely with the path
     fi
 
-    # confirm that this is fine
     echo -n "Are you sure? (y/N): "
     read confirm
-    [ -t 0 ] || echo # if not open in a terminal, add the implicit newline from read
+    if ! [ -t 0 ] ;
+    then # open in a pipe
+        # simulate user input
+        echo "${confirm}"
+    fi
     if echo "${confirm}"|grep -E "[Yy]+([Ee]+[Ss]+)*">/dev/null;
     then # they tried to say yes
         echo "${files}"| # for each file
