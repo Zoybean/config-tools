@@ -60,7 +60,7 @@ else
             do
                 if [ -e "${source}/${file}" ];
                 then # source file exists
-                    cp -fvT --remove-destination "${dest}/${repo}/${source}/${file}" "${dest}/.${file}" # copy, overwriting, verbose
+                    cp -frvT --remove-destination "${dest}/${repo}/${source}/${file}" "${dest}/.${file}" # copy, overwriting, recursive, verbose
                 else # file doesn't exist
                     echo "Warning: cannot copy nonexistent file \"${source}/${file}\"" # don't copy nothing
                 fi

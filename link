@@ -61,6 +61,7 @@ else
             do
                 if [ -e "${target}/${file}" ];
                 then # target file exists
+                    rm -rf "${dest}/.${file}" &&
                     ln -sfvT "${repo}/${target}/${file}" "${dest}/.${file}" # create the symbolic link, overwriting, verbose
                 else # file doesn't exist
                     echo "Warning: cannot create link to nonexistent file \"${target}/${file}\"" # don't create bad links
