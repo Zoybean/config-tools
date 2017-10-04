@@ -1,33 +1,36 @@
 #!/bin/bash
 
 ## import settings files from the repo to this computer, without linking
+#  imported files will have '.' prepended to their filename
 ## Usage:
 ## ./import
 #    imports all files from "src"
 ## ./import list of files
 #    imports files "list", "of" and "files", if they exist in "src"
+#    cannot handle paths to files
+#    ignores leading '.'s in filenames, as no source files may be hidden
 
 # destination for files
-dest=~
+dest="$HOME"
 
 # path to repo from ${dest}
 repo="config"
 
 # source directory for copied files, relative to ${repo}
-source="src"
+src="src"
 
 # files to be copied
 files="$(
-    if [ "$#" -eq "0" ] ;
+    if [ "$#" -le 0 ] ; # no arguments
     then
-        ls -1 "${source}" # all the files in source directory
+        ls -1 "${src}" # all the files in source directory
     else
         IFS=$'\n'; echo "$*" # all the files listed in the command line args
     fi
         )"
 
 # don't do anything if there's nothing to do
-if [ "${files}" == "" ];
+if [ -z "${files}" ];
 then
     echo "no files to import, exiting"
 else
@@ -39,7 +42,7 @@ else
                 ls -1a "${dest}" | grep "^.${file}$" # file exists in destination directory, as a hidden file
             done
                 )"
-    if [ "${overwrites}" != "" ];
+    if [ -n "${overwrites}" ];
     then
         echo "This action will overwrite the following files:"
         echo "${overwrites}"|
@@ -53,16 +56,16 @@ else
         # simulate user input
         echo "${confirm}"
     fi
-    if echo "${confirm}"|grep -E "[Yy]+([Ee]+[Ss]+)*">/dev/null;
+    if echo "${confirm}"|grep -Eq "[Yy]+([Ee]+[Ss]+)*" ;
     then # they tried to say yes
         echo "${files}"| # for each file
             while IFS='' read file; 
             do
-                if [ -e "${source}/${file}" ];
+                if [ -e "${src}/${file}" ];
                 then # source file exists
-                    cp -frvT --remove-destination "${dest}/${repo}/${source}/${file}" "${dest}/.${file}" # copy, overwriting, recursive, verbose
+                    cp -frvT --remove-destination "${dest}/${repo}/${src}/${file}" "${dest}/.${file}" # copy, overwriting, recursive, verbose
                 else # file doesn't exist
-                    echo "Warning: cannot copy nonexistent file \"${source}/${file}\"" # don't copy nothing
+                    echo "Warning: cannot copy nonexistent file \"${src}/${file}\"" # don't copy nothing
                 fi
             done
     else # they said something else; assume no

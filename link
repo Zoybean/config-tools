@@ -1,14 +1,17 @@
 #!/bin/bash
 
-## link settings files from the repo to this computer
+## link settings files from the repository to this computer
+#  linked files will have '.' prepended to their filename
 ## Usage:
 ## ./link
 #    links all files from "src"
 ## ./link list of files
 #    links files "list", "of" and "files", if they exist in "src"
+#    cannot handle paths to files
+#    ignores leading '.'s in filenames, as no source files may be hidden
 
 # destination for links
-dest=~
+dest="$HOME"
 
 # path to repo from ${dest}
 repo="config"
@@ -18,7 +21,7 @@ target="src"
 
 # files to be linked
 files="$(
-    if [ "$#" -eq "0" ] ;
+    if [ "$#" -le 0 ] ; # no arguments
     then
         ls -1 "${target}" # all the files in source directory
     else
@@ -27,7 +30,7 @@ files="$(
         )"
 
 # don't do anything if there's nothing to do
-if [ "${files}" == "" ];
+if [ -z "${files}" ];
 then
     echo "no files to link, exiting"
 else
@@ -39,7 +42,7 @@ else
                 ls -1a "${dest}" | grep "^.${file}$" # file exists in destination directory, as a hidden file
             done
                 )"
-    if [ "${overwrites}" != "" ];
+    if [ -n "${overwrites}" ];
     then
         echo "This action will overwrite the following files:"
         echo "${overwrites}"|
@@ -54,7 +57,7 @@ else
         echo "${confirm}"
     fi
     [ -t 0 ] || echo # if not open in a terminal, add the implicit newline from read
-    if echo "${confirm}"|grep -E "[Yy]+([Ee]+[Ss]+)*">/dev/null;
+    if echo "${confirm}"|grep -Eq "[Yy]+([Ee]+[Ss]+)*" ;
     then # they tried to say yes
         echo "${files}"| # for each file
             while IFS='' read file; 

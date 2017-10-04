@@ -1,12 +1,14 @@
 #!/bin/bash
 
-## 'export' settings files from this computer to the repository
+## export settings files from this computer to the repository
 ## Usage:
 ## ./export list of files
-#    exports files "list", "of" and "files", if they exist in "src"
+#    exports files "list", "of" and "files", if they exist in "~"
+#    cannot handle paths to files
+#    treats all filenames as if they begin with '.'
 
 # source for files
-src=~
+src="$HOME"
 
 # path to repo from ${src}
 repo="config"
@@ -26,13 +28,14 @@ then # it does exist, but it isnt a directory
 fi
 
 # files to be exported
-if [ "$#" -eq "0" ] ;
+if [ "$#" -le 0 ] ; # no arguments
 then
     echo "no files to export, aborting"
     exit 1
 else
     files="$(
-        IFS=$'\n'; echo "$*" # all the files listed in the command line args
+        IFS=$'\n'; echo "$*"| # all the files listed in the command line args
+            sed 's:^\.*:.:' # all treated as hidden files
         )"
 fi
 
@@ -45,11 +48,11 @@ overwrites="$(
             ls -1a "${dest}" | grep "^${file}$" # file exists in destination directory, as a visible file
         done
             )"
-if [ "${overwrites}" != "" ];
+if [ -n "${overwrites}" ];
 then
     echo "This action will overwrite the following files:"
     echo "${overwrites}"|
-        sed "s:^:${src}/${repo}/${dest}/:" # format it nicely with the path
+        sed "s:^:${src}/${repo}/${dest}/:" # format each line nicely with the path
 fi
 
 echo -n "Are you sure? (y/N): "
@@ -59,7 +62,7 @@ then # open in a pipe
     # simulate user input
     echo "${confirm}"
 fi
-if echo "${confirm}"|grep -E "[Yy]+([Ee]+[Ss]+)*">/dev/null;
+if echo "${confirm}"|grep -Eq "[Yy]+([Ee]+[Ss]+)*" ;
 then # they tried to say yes
     echo "${files}"| # for each file
         while IFS='' read file; 
