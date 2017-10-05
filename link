@@ -56,7 +56,6 @@ else
         # simulate user input
         echo "${confirm}"
     fi
-    [ -t 0 ] || echo # if not open in a terminal, add the implicit newline from read
     if echo "${confirm}"|grep -Eq "[Yy]+([Ee]+[Ss]+)*" ;
     then # they tried to say yes
         echo "${files}"| # for each file
