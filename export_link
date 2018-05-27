@@ -1,2 +1,3 @@
 #!/bin/bash
-./export "$@" && yes | ./link "$@"
+DIR="$(dirname "$(realpath "$0")")"
+"$DIR"/export "$@" && yes | "$DIR"/link "$@"
